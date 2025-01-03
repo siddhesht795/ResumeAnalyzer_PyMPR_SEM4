@@ -71,7 +71,7 @@ st.markdown(
     """, unsafe_allow_html=True
 )
 
-st.markdown("<h1 style='text-align: center; color: black;'>Technical ATS Tracking System</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: black;'>Technical Resume Expert</h1>", unsafe_allow_html=True)
 
 # Inputs
 input_text = st.text_area("Job Description: ", key="input")
