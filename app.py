@@ -3,9 +3,9 @@ import base64
 import os
 import io
 import re
+import fitz  # PyMuPDF
 import matplotlib.pyplot as plt
 from PIL import Image
-import pdf2image
 from dotenv import load_dotenv
 import google.generativeai as genai
 
@@ -19,14 +19,15 @@ def get_gemini_response(input, pdf_content, prompt):
     response = model.generate_content([input, pdf_content[0], prompt])
     return response.text
 
+
 def input_pdf_setup(uploaded_file):
     if uploaded_file is not None:
-        images = pdf2image.convert_from_bytes(uploaded_file.read())
-        first_page = images[0]
-        img_byte_arr = io.BytesIO()
-        first_page.save(img_byte_arr, format='JPEG')
-        img_byte_arr = img_byte_arr.getvalue()
-        return first_page, base64.b64encode(img_byte_arr).decode()
+        # Read the uploaded PDF file
+        with fitz.open(stream=uploaded_file.read(), filetype="pdf") as pdf_doc:
+            # Get the first page as an image
+            first_page = pdf_doc[0].get_pixmap()
+            img_byte_arr = io.BytesIO(first_page.tobytes("jpeg"))
+            return Image.open(img_byte_arr), base64.b64encode(img_byte_arr.getvalue()).decode()
     else:
         raise FileNotFoundError("No file uploaded")
 
