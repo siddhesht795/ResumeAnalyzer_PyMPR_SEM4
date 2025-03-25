@@ -1,0 +1,96 @@
+JOB DESCRIPTIONS:
+
+SOFTWARE DEVELOPMENT:-
+We're hiring a Full Stack Developer with expertise in JavaScript frameworks to join our engineering team. This role involves developing and maintaining web applications with a focus on scalability and performance.
+
+Key Responsibilities:
+- Develop and maintain web applications using React.js and Node.js
+- Design and implement RESTful APIs
+- Write clean, maintainable code following best practices
+- Collaborate with UX/UI designers to implement responsive designs
+- Optimize applications for maximum speed and scalability
+- Implement security and data protection measures
+- Participate in code reviews and mentor junior developers
+- Troubleshoot and debug applications
+
+Technical Requirements:
+- 3+ years of professional development experience
+- Strong proficiency in JavaScript (ES6+), HTML5, CSS3
+- Experience with React.js and Redux
+- Backend development with Node.js and Express
+- Database experience with MongoDB and PostgreSQL
+- Version control with Git/GitHub
+- Understanding of CI/CD pipelines
+- Familiarity with Docker and cloud platforms (AWS/Azure)
+
+Nice to Have:
+- Experience with TypeScript
+- Knowledge of GraphQL
+- Testing frameworks (Jest, Mocha)
+- Microservices architecture experience
+- Contributions to open source projects
+
+MARKETING:
+We are seeking a dynamic Marketing Specialist with 3-5 years of experience to join our team. The ideal candidate will be responsible for developing and executing marketing campaigns across digital and traditional channels.
+
+Key Responsibilities:
+- Develop and implement comprehensive marketing strategies
+- Manage social media platforms (Facebook, Instagram, LinkedIn, Twitter)
+- Create engaging content including blog posts, videos, and graphics
+- Analyze campaign performance using Google Analytics and other tools
+- Conduct market research and competitor analysis
+- Coordinate email marketing campaigns using Mailchimp
+- Optimize SEO and manage PPC campaigns
+- Collaborate with sales team to generate leads
+
+Requirements:
+- Bachelor's degree in Marketing or related field
+- 3+ years of digital marketing experience
+- Proficiency in Google Ads, Facebook Ads Manager
+- Experience with CMS platforms (WordPress, Shopify)
+- Strong analytical skills with Google Analytics certification
+- Excellent written and verbal communication skills
+- Creative thinking and problem-solving abilities
+
+Preferred Qualifications:
+- Experience with marketing automation tools
+- Graphic design skills (Canva, Adobe Creative Suite)
+- Knowledge of CRM systems (HubSpot, Salesforce)
+
+JPMC JOB DESCRIPTION:
+Job Description: Software Engineer Intern (Summer 2026) - India
+
+We're seeking passionate engineering students to join our global technology team. This internship offers hands-on experience developing innovative solutions that impact millions of customers worldwide.
+
+Key Responsibilities:
+- Develop and optimize digital applications supporting global operations
+- Work in agile teams with experienced engineers and peers
+- Participate in the complete software development lifecycle
+- Contribute to projects using cutting-edge technologies
+- Collaborate with global technologists to share ideas and innovations
+- Engage in training, mentorship, and leadership sessions
+
+Technical Requirements:
+- Pursuing B.Tech/B.E (CS/IT/Data Science/AI) with graduation by July 2027
+- Minimum CGPA: 8.5/10 or 85%
+- Coding skills in Java/Python/Go or other general-purpose languages
+- Understanding of software development principles and toolsets
+- Basic knowledge of cloud, AI, mobile, or other technical disciplines
+- Exposure to agile methodologies (CI/CD, Application Resiliency)
+- Familiarity with Big Data concepts is a plus
+
+Preferred Skills:
+- Strong problem-solving abilities
+- Excellent communication skills
+- Experience with relational databases
+- Knowledge of industry technology trends
+- Ability to thrive in collaborative environments
+
+Program Highlights:
+- Induction training on tech strategies and systems
+- Networking with senior leaders
+- Peer mentorship programs
+- Potential full-time conversion for top performers
+- Opportunity to participate in Code for Good hackathon
+
+Locations: Bengaluru, Hyderabad, Mumbai, Pune

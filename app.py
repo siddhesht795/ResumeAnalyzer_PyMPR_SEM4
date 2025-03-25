@@ -4,7 +4,6 @@ import os
 import io
 import re
 import fitz  # PyMuPDF
-import matplotlib.pyplot as plt
 from PIL import Image
 from dotenv import load_dotenv
 import google.generativeai as genai
@@ -87,41 +86,8 @@ def enhanced_match_percentage(response_text, job_desc, resume_text):
     weighted_score = 0.7 * ai_match + 0.3 * keyword_match
     return min(100, int(weighted_score))  # Cap at 100%
 
-def draw_pie_chart(match_percentage):
-    fig, ax = plt.subplots()
-    labels = ['Match', 'Remaining']
-    sizes = [match_percentage, 100 - match_percentage]
-    colors = ['#4CAF50', '#FF5733']
-    explode = (0.1, 0)
-    ax.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%',
-           shadow=True, startangle=90)
-    ax.axis('equal')
-    return fig
-
 # Streamlit Configuration
-st.set_page_config(page_title="Technical ATS Resume Expert")
-
-# Algorithmic Approach Explanation
-st.sidebar.markdown("""
-## Algorithmic Approach
-
-1. **PDF Processing**:
-   - Single read operation for efficiency
-   - Extract both image and text content
-
-2. **Text Analysis**:
-   - Advanced keyword extraction
-   - Text normalization pipeline
-
-3. **Hybrid Scoring**:
-   - 70% weight to Gemini AI analysis
-   - 30% weight to algorithmic matching
-   - Combined weighted score
-
-4. **Visualization**:
-   - Interactive pie chart
-   - Detailed breakdown
-""")
+st.set_page_config(page_title="Resume Analyzer")
 
 # Page Styling
 st.markdown(
@@ -226,18 +192,10 @@ elif submit3:
             match_percentage = enhanced_match_percentage(response, input_text, resume_text)
             
             st.subheader("Analysis Results")
+            st.image(pdf_image, caption="Resume Preview", width=300)
             
-            col1, col2 = st.columns([1, 2])
-            with col1:
-                st.image(pdf_image, caption="Resume Preview", use_column_width=True)
-            with col2:
-                st.pyplot(draw_pie_chart(match_percentage))
             
             st.write(response)
-            
-            with st.expander("Detailed Keyword Analysis"):
-                st.metric("Keyword Match Score", f"{calculate_keyword_match(input_text, resume_text)}%")
-                st.caption("This score measures the direct keyword overlap between your resume and the job description.")
                 
         except Exception as e:
             st.error(f"Error processing PDF: {str(e)}")
