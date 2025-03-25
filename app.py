@@ -19,17 +19,54 @@ def get_gemini_response(input, pdf_content, prompt):
     response = model.generate_content([input, pdf_content[0], prompt])
     return response.text
 
-
 def input_pdf_setup(uploaded_file):
     if uploaded_file is not None:
-        # Read the uploaded PDF file
-        with fitz.open(stream=uploaded_file.read(), filetype="pdf") as pdf_doc:
-            # Get the first page as an image
+        # Read the file content once and store it
+        file_bytes = uploaded_file.read()
+        
+        # Create image for display
+        with fitz.open(stream=file_bytes, filetype="pdf") as pdf_doc:
             first_page = pdf_doc[0].get_pixmap()
             img_byte_arr = io.BytesIO(first_page.tobytes("jpeg"))
-            return Image.open(img_byte_arr), base64.b64encode(img_byte_arr.getvalue()).decode()
+            image = Image.open(img_byte_arr)
+        
+        # Return both the image and the raw bytes for text extraction
+        return image, file_bytes
     else:
         raise FileNotFoundError("No file uploaded")
+
+def extract_text_from_pdf(pdf_bytes):
+    """Algorithm to extract text from PDF using PyMuPDF"""
+    text = ""
+    with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:
+        for page in doc:
+            text += page.get_text()
+    return text
+
+def preprocess_text(text):
+    """Text processing algorithm for normalization"""
+    text = text.lower()
+    text = re.sub(r'[^\w\s]', '', text)  # Remove punctuation
+    text = re.sub(r'\s+', ' ', text)     # Remove extra whitespace
+    return text
+
+def calculate_keyword_match(job_desc, resume_text):
+    """Keyword matching algorithm with TF-IDF inspired scoring"""
+    job_desc = preprocess_text(job_desc)
+    resume_text = preprocess_text(resume_text)
+    
+    job_words = set(job_desc.split())
+    resume_words = set(resume_text.split())
+    
+    # Calculate Jaccard similarity
+    intersection = job_words.intersection(resume_words)
+    union = job_words.union(resume_words)
+    
+    if not union:
+        return 0
+    
+    similarity = len(intersection) / len(union)
+    return round(similarity * 100, 2)
 
 def extract_match_percentage(response_text):
     match = re.search(r"Match Percentage:\s*(\d+)%", response_text)
@@ -37,6 +74,18 @@ def extract_match_percentage(response_text):
         return int(match.group(1))
     else:
         return 0
+
+def enhanced_match_percentage(response_text, job_desc, resume_text):
+    """Hybrid scoring algorithm combining AI and keyword analysis"""
+    # Extract percentage from Gemini response
+    ai_match = extract_match_percentage(response_text)
+    
+    # Calculate keyword match
+    keyword_match = calculate_keyword_match(job_desc, resume_text)
+    
+    # Weighted average (70% AI analysis, 30% keyword matching)
+    weighted_score = 0.7 * ai_match + 0.3 * keyword_match
+    return min(100, int(weighted_score))  # Cap at 100%
 
 def draw_pie_chart(match_percentage):
     fig, ax = plt.subplots()
@@ -52,123 +101,145 @@ def draw_pie_chart(match_percentage):
 # Streamlit Configuration
 st.set_page_config(page_title="Technical ATS Resume Expert")
 
+# Algorithmic Approach Explanation
+st.sidebar.markdown("""
+## Algorithmic Approach
+
+1. **PDF Processing**:
+   - Single read operation for efficiency
+   - Extract both image and text content
+
+2. **Text Analysis**:
+   - Advanced keyword extraction
+   - Text normalization pipeline
+
+3. **Hybrid Scoring**:
+   - 70% weight to Gemini AI analysis
+   - 30% weight to algorithmic matching
+   - Combined weighted score
+
+4. **Visualization**:
+   - Interactive pie chart
+   - Detailed breakdown
+""")
+
 # Page Styling
 st.markdown(
     """
     <style>
-    body {
-        background-image: url('gradient-blur.png');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
+    .main {
+        background-color: #f5f5f5;
     }
     h1 {
-        text-align: center;
+        color: #2c3e50;
+    }
+    .stButton>button {
+        background-color: #4CAF50;
         color: white;
-        font-size: 2.5em;
     }
     </style>
-    """, unsafe_allow_html=True
+    """, 
+    unsafe_allow_html=True
 )
 
-st.markdown("<h1 style='text-align: center; color: black;'>Technical Resume Expert</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>Technical Resume Expert</h1>", unsafe_allow_html=True)
 
 # Inputs
-input_text = st.text_area("Job Description: ", key="input")
+input_text = st.text_area("Job Description: ", key="input", height=200)
 uploaded_file = st.file_uploader("Upload your resume (PDF)...", type=["pdf"])
 
 if uploaded_file is not None:
-    st.write("PDF Uploaded Successfully!")
+    st.success("PDF Uploaded Successfully!")
 
 # Buttons
-submit1 = st.button("Analyse Resume")
-submit2 = st.button("How Can I Improvise my Skills?")
-submit3 = st.button("Match Resume with Job Description")
+col1, col2, col3 = st.columns(3)
+with col1:
+    submit1 = st.button("Analyse Resume")
+with col2:
+    submit2 = st.button("Improvement Suggestions")
+with col3:
+    submit3 = st.button("Match Percentage")
 
 # Prompts
 input_prompt1 = """
-You are an experienced Technical HR Manager with expertise in talent acquisition and recruitment for technology, finance, and business roles. Your task is to conduct a detailed evaluation of the provided resume against the job description.
-
-Alignment with Job Requirements: Analyze the resume to identify key skills, qualifications, and experiences that match the job requirements. Highlight areas where the candidate excels in fulfilling the role's technical, financial, or business-related expectations.
-
-Strengths: Enumerate the candidate's core strengths, including technical skills, domain knowledge, certifications, achievements, or relevant experiences that align closely with the job description.
-
-Weaknesses: Point out any notable gaps or areas where the candidate's profile does not meet the job requirements, such as missing skills, insufficient experience, or lack of relevant certifications.
-
-Overall Fit: Provide a professional assessment of how well the candidate fits the role, considering both strengths and weaknesses. Offer an overall recommendation (e.g., highly suitable, moderately suitable, not suitable) and explain your reasoning.
-
-Ensure your evaluation is specific, clear, and actionable, taking into account the nuances of the job role and industry requirements.
+As a Technical HR Manager, evaluate this resume against the job description:
+1. Identify matching skills and qualifications
+2. Highlight strengths and weaknesses
+3. Provide overall suitability assessment
 """
 
 input_prompt2 = """
-You are a highly experienced Technical Career Advisor with deep expertise in the fields of Data Science, Web Development, Big Data Engineering, DevOps, and other technical domains. Your task is to provide detailed, actionable, and personalized guidance to help the individual improve their skills and advance their career based on the provided resume and job description.
-
-1. **Skill Gap Analysis**: Identify the specific skills, technologies, tools, or certifications that are missing from the candidate's resume but are crucial for excelling in the specified job role.
-
-2. **Recommended Learning Path**: Suggest practical steps the candidate can take to acquire the missing skills, such as:
-   - Online courses or certifications (e.g., Coursera, Udemy, or official vendor certifications like AWS, Azure, or Google Cloud).
-   - Projects or hands-on experiences that can help them gain expertise.
-   - Open-source contributions or internships for real-world exposure.
-
-3. **Emerging Trends and Technologies**: Highlight any emerging trends, tools, or frameworks in the industry that the candidate should explore to stay competitive and future-proof their career.
-
-4. **Improvement in Soft Skills**: If applicable, suggest areas where the candidate can improve soft skills (e.g., communication, teamwork, or leadership) that are essential for success in their chosen domain.
-
-5. **Overall Guidance**: Provide a summary of the top three actionable steps the candidate should prioritize to achieve significant improvement in their profile.
-
-Ensure that your response is specific to the candidate's field and the role described in the job description. Provide clear, concise, and actionable advice that the candidate can immediately apply to improve their skills and career prospects.
+As a Career Advisor, provide specific recommendations:
+1. Identify skill gaps
+2. Suggest learning resources
+3. Recommend improvement strategies
 """
 
 input_prompt3 = """
-You are a skilled and advanced ATS (Applicant Tracking System) scanner, designed with deep functionality and specialized expertise in roles such as Data Science, Web Development, Big Data Engineering, and DevOps. Your task is to evaluate the provided resume against the job description thoroughly.
-
-Matching Percentage: Analyze the resume and provide a precise percentage score indicating how well the candidate's profile aligns with the job description.
-
-Missing Keywords: Identify and list any critical skills, technologies, tools, certifications, or keywords mentioned in the job description that are absent from the resume.
-
-Final Thoughts: Provide a brief, insightful summary of your evaluation, including the candidate's overall suitability for the role, highlighting both key strengths and gaps.
-
-Output Structure:
-
-Match Percentage(bold): XX%
-Missing Keywords(bold): 
-[List missing skills/tools/keywords]
-Final Thoughts(bold): 
-[Provide a short summary of strengths and weaknesses and a recommendation if possible.]
+As an ATS Scanner, provide:
+1. Match percentage (bold)
+2. Missing keywords (bold)
+3. Final assessment (bold)
+Format with clear headings.
 """
 
 # Actions
 if submit1:
     if uploaded_file is not None:
-        pdf_image, pdf_base64 = input_pdf_setup(uploaded_file)
-        response = get_gemini_response(input_text, [{"mime_type": "image/jpeg", "data": pdf_base64}], input_prompt1)
-        st.subheader("Analysis")
-        st.write(response)
+        try:
+            pdf_image, pdf_bytes = input_pdf_setup(uploaded_file)
+            pdf_base64 = base64.b64encode(pdf_bytes).decode()
+            response = get_gemini_response(input_text, [{"mime_type": "application/pdf", "data": pdf_base64}], input_prompt1)
+            
+            st.subheader("Resume Analysis")
+            st.image(pdf_image, caption="Resume Preview", width=300)
+            st.write(response)
+            
+        except Exception as e:
+            st.error(f"Error processing PDF: {str(e)}")
     else:
-        st.write("Please upload your resume!")
+        st.warning("Please upload your resume first!")
 
 elif submit2:
     if uploaded_file is not None:
-        pdf_image, pdf_base64 = input_pdf_setup(uploaded_file)
-        response = get_gemini_response(input_text, [{"mime_type": "image/jpeg", "data": pdf_base64}], input_prompt2)
-        st.subheader("Improvement Suggestions")
-        st.write(response)
+        try:
+            pdf_image, pdf_bytes = input_pdf_setup(uploaded_file)
+            pdf_base64 = base64.b64encode(pdf_bytes).decode()
+            response = get_gemini_response(input_text, [{"mime_type": "application/pdf", "data": pdf_base64}], input_prompt2)
+            
+            st.subheader("Improvement Suggestions")
+            st.write(response)
+            
+        except Exception as e:
+            st.error(f"Error processing PDF: {str(e)}")
     else:
-        st.write("Please upload your resume!")
+        st.warning("Please upload your resume first!")
 
 elif submit3:
     if uploaded_file is not None:
-        pdf_image, pdf_base64 = input_pdf_setup(uploaded_file)
-        response = get_gemini_response(input_text, [{"mime_type": "image/jpeg", "data": pdf_base64}], input_prompt3)
-        match_percentage = extract_match_percentage(response)
-        col1, col2 = st.columns(2)
-        with col1:
-            st.image(pdf_image, caption="Resume First Page", use_container_width=True)
-        with col2:
-            st.subheader("Match Percentage")
-            pie_chart = draw_pie_chart(match_percentage)
-            st.pyplot(pie_chart)
-        st.subheader("Detailed Analysis")
-        st.write(response)
+        try:
+            pdf_image, pdf_bytes = input_pdf_setup(uploaded_file)
+            pdf_base64 = base64.b64encode(pdf_bytes).decode()
+            response = get_gemini_response(input_text, [{"mime_type": "application/pdf", "data": pdf_base64}], input_prompt3)
+            
+            resume_text = extract_text_from_pdf(pdf_bytes)
+            match_percentage = enhanced_match_percentage(response, input_text, resume_text)
+            
+            st.subheader("Analysis Results")
+            
+            col1, col2 = st.columns([1, 2])
+            with col1:
+                st.image(pdf_image, caption="Resume Preview", use_column_width=True)
+            with col2:
+                st.pyplot(draw_pie_chart(match_percentage))
+            
+            st.write(response)
+            
+            with st.expander("Detailed Keyword Analysis"):
+                st.metric("Keyword Match Score", f"{calculate_keyword_match(input_text, resume_text)}%")
+                st.caption("This score measures the direct keyword overlap between your resume and the job description.")
+                
+        except Exception as e:
+            st.error(f"Error processing PDF: {str(e)}")
     else:
-        st.write("Please upload your resume!")
+        st.warning("Please upload your resume first!")
