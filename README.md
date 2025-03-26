@@ -2,8 +2,6 @@
 
 A Streamlit-powered application that leverages Google's Gemini AI to perform in-depth resume analysis against job descriptions. Provides actionable insights, improvement suggestions, and hybrid scoring combining AI analysis with keyword matching.
 
-![Demo](https://via.placeholder.com/800x400.png?text=Resume+Analyzer+Demo+GIF)
-
 ## Features
 
 - **AI-Powered Resume Analysis**: Comprehensive evaluation against job requirements
