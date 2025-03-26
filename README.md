@@ -20,8 +20,8 @@ A Streamlit-powered application that leverages Google's Gemini AI to perform in-
 
 1. Clone the repository:
 ```bash
-git clone "https://github.com/siddhesht795/resume-analyzer-ai.git"
-cd resume-analyzer-ai
+git clone "https://github.com/siddhesht795/ResumeAnalyzer_PyMPR_SEM4.git"
+cd ResumeAnalyzer_PyMPR_SEM4
 ```
 2. Install dependencies:
 ```bash
