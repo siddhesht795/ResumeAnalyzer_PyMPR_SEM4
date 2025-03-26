@@ -9,8 +9,6 @@ A Streamlit-powered application that leverages Google's Gemini AI to perform in-
 - **AI-Powered Resume Analysis**: Comprehensive evaluation against job requirements
 - **Improvement Suggestions**: Skill gap analysis and career development recommendations
 - **Hybrid Match Percentage**: Combines Gemini AI analysis with keyword scoring
-- **PDF Preview**: First-page visualization of uploaded resumes
-- **ATS Optimization**: Identifies missing keywords and formatting issues
 
 ## Technologies Used
 
@@ -26,5 +24,18 @@ A Streamlit-powered application that leverages Google's Gemini AI to perform in-
 ```bash
 git clone https://github.com/<yourusername>/resume-analyzer-ai.git
 cd resume-analyzer-ai
-
+```
 2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Create .env file:
+```bash
+GOOGLE_API_KEY=your_api_key_here #Set your API key
+```
+
+4. Run the application:
+```bash
+streamlit run app.py
+```
